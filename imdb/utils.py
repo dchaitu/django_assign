@@ -43,16 +43,16 @@ from django.shortcuts import render
 from imdb.models import Rating, Movie, Cast, Actor, Director
 
 # n = 1
-actors_list = []
-directors_list = []
+# actors_list = []
+# directors_list = []
 cast_list = []
 #
 #
-movie_list = []
-movie_rating_list = []
+# movie_list = []
+# movie_rating_list = []
 
 
-def create_actors():
+def create_actors(actors_list):
     actor_id = input("Actor id = ")
     name = input("Actor name = ")
     actor = Actor(actor_id=actor_id, name=name)
@@ -61,14 +61,14 @@ def create_actors():
 
 
 
-def create_director():
+def create_director(directors_list):
     name = input("Director name")
     director = Director(name=name)
     directors_list.append(director)
     return directors_list
 
 
-def create_cast(actor_id):
+def create_cast(actor_id, actors_list):
     for actor in actors_list:
         if actor_id == actor.actor_id:
             role = input("Role is")
@@ -126,6 +126,6 @@ def populate_database(actors_list, movies_list, directors_list, movie_rating_lis
 
 
 if __name__ == '__main__':
-    actors_list = create_actors()
-    directors_list = create_director()
+    populate_database(actors_list=[], movies_list=[], directors_list=[], movie_rating_list=[])
+
 
