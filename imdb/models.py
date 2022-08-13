@@ -86,3 +86,6 @@ class Rating(models.Model):
     rating_three_count = models.IntegerField(default=0)
     rating_four_count = models.IntegerField(default=0)
     rating_five_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return  f'Rating for {self.movie_id}'
