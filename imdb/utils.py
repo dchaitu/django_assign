@@ -105,30 +105,28 @@ def get_director():
 #
 #     return cast
 
-def create_cast(actor_id):
-    # print(f'(actors_list) {actors_list}')
-    actor = Actor.objects.get(actor_id =actor_id)
-    role = input("Role is = ")
-    is_debut_movie = (int(input("Is Debut? = ")) == 1)
-    cast = Cast.objects.create(actor=actor, role=role, is_debut_movie=is_debut_movie)
-    cast.save()
-            # cast_list.append(cast)
-    print(f'cast:- {cast}')
-    print("*****Cast****")
-    return cast
+# def create_cast(actor_id):
+#     # print(f'(actors_list) {actors_list}')
+#     actor = Actor.objects.get(actor_id =actor_id)
+#     role = input("Role is = ")
+#     is_debut_movie = (int(input("Is Debut? = ")) == 1)
+#     cast = Cast.objects.create(actor=actor, role=role, is_debut_movie=is_debut_movie)
+#     cast.save()
+#             # cast_list.append(cast)
+#     print(f'cast:- {cast}')
+#     print("*****Cast****")
+#     return cast
 
 
-def add_actors_to_movie(movie_id):
-    # actors_list=[]
-    # for i in range(2):
-    #     role = input("Enter role of actor:-")
-    #     act = input("Enter Acted by:-")
-    #     actors = Cast.objects.filter(Q(actor__name=act),Q(role=role))
-    #     actors_list.append(actors)
-    actors_list = Actor.objects.all()
-
-    movie = Movie.objects.get(movie_id=movie_id)
-    print(f'Actors are {actors_list}')
+def add_cast_to_movie(movie_id):
+    actors_list=[]
+    for i in range(2):
+        role = input("Enter role of actor:-")
+        actors = Cast.objects.get(role=role)
+        actors_list.append(actors)
+    print(actors_list)
+    director,value = Director.objects.get_or_create(name="Director 3")
+    movie = Movie.objects.get_or_create(movie_id=movie_id,release_date = date(2022, 10, 10),box_office_collection_in_crores = 11.3,director_id= director.id)
     movie.actors.add(*actors_list)
     movie.save()
 

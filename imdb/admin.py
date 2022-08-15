@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from imdb.models import Rating,Movie,Cast,Actor,Director
+from imdb.models import Rating,Movie,Actor,Director,Cast
 
 admin.site.register(Actor)
 admin.site.register(Movie)
