@@ -46,7 +46,7 @@ class Director(models.Model):
 
 
 class Cast(models.Model):
-    movie =models.ForeignKey('Movie', on_delete=models.CASCADE)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
     actor = models.ForeignKey('Actor', on_delete=models.CASCADE)
     role = models.CharField(max_length=50)
     is_debut_movie = models.BooleanField()
