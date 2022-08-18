@@ -24,6 +24,12 @@ a name, a string of maximum 100 characters long
 class Actor(models.Model):
     actor_id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100)
+    GENDER = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
+    gender = models.CharField(max_length=1,choices=GENDER,default="M")
+
 
     def __str__(self):
         return self.name
@@ -81,7 +87,7 @@ Ratings start with 0 by default.
 
 
 class Rating(models.Model):
-    movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating_one_count = models.IntegerField(default=0)
     rating_two_count = models.IntegerField(default=0)
     rating_three_count = models.IntegerField(default=0)

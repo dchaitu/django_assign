@@ -45,7 +45,7 @@ def get_movie_names_with_ratings_in_given_range():
     max_rating = Q(rating_five_count__lte=3000)
     ratings = Rating.objects.filter(min_rating & max_rating)
     for rating in ratings:
-        movie = Movie.objects.get(movie_id=rating.movie_id_id)
+        movie = Movie.objects.get(movie_id=rating.movie_id)
         ratings_list.append(movie.name)
     return ratings_list
 
@@ -68,7 +68,7 @@ def get_movie_names_with_ratings_in_given_range():
     min_one_rating = Q(rating_two_count__gt=8000)
     ratings = Rating.objects.filter(min_rating | min_four_rating | min_three_rating | min_two_rating | min_one_rating)
     for rating in ratings:
-        movie = Movie.objects.get(movie_id=rating.movie_id_id)
+        movie = Movie.objects.get(movie_id=rating.movie_id)
         ratings_list.append(movie.name)
     return ratings_list
 
@@ -126,52 +126,59 @@ def get_director_names_containing_big_as_well_as_movie_in_may():
 def reset_ratings_for_movies_in_this_year():
     """
     """
-    movie_ratings=[]
+    movie_ratings = []
     year = 2000
     movies = Movie.objects.filter(release_date__year=year)
+    # movies_list = Movie.objects.filter(release_date__year=year).values_list('movie_id',flat=True)
     for movie in movies:
         try:
-            rating = Rating.objects.get(movie_id = movie.movie_id)
+            rating = Rating.objects.get(movie_id=movie.movie_id)
         except:
             rating = None
         if rating is not None:
             movie_ratings.append(rating)
 
         for rating in movie_ratings:
-            rating.rating_five_count=0
-            rating.rating_one_count=0
-            rating.rating_two_count=0
-            rating.rating_three_count=0
-            rating.rating_four_count=0
+            rating.rating_five_count = 0
+            rating.rating_one_count = 0
+            rating.rating_two_count = 0
+            rating.rating_three_count = 0
+            rating.rating_four_count = 0
             rating.save()
 
     return movie_ratings
 
-def get_movies_by_given_movie_names(movie_names):
 
-    all_movies=[]
+def get_movies_by_given_movie_names(movie_names):
+    all_movies = []
     for name in movie_names:
-        movie_details={}
         movie = Movie.objects.get(name=name)
-        obj ={}
+        movie_obj = {}
         rating = Rating.objects.get(movie_id=movie.movie_id)
 
         crew = Cast.objects.filter(movie__movie_id=movie.movie_id)
-        all_cast = []
+        all_cast=[]
         for cast in crew:
-            cast_obj={}
-            actor_obj={}
-            actor_obj.update({"name":cast.actor.name,"actor_id": cast.actor.actor_id,})
+            cast_obj = {}
+            actor_obj = {}
+            actor_obj.update({"name": cast.actor.name, "actor_id": cast.actor.actor_id, })
             cast_obj.update({"actor": actor_obj, "role": cast.role, "is_debut_movie": cast.is_debut_movie})
-
-
+            all_cast.append(cast_obj)
         total_rating = 1 * rating.rating_one_count + 2 * rating.rating_two_count + 3 * rating.rating_three_count + 4 * rating.rating_four_count + 5 * rating.rating_five_count
         count_of_rating = rating.rating_one_count + rating.rating_two_count + rating.rating_three_count + rating.rating_four_count + rating.rating_five_count
-        average_rating = total_rating / count_of_rating
-        obj.update({"movie_id": movie.movie_id,"name":movie.name,"cast":cast_obj, "box_office_collection_in_crores":movie.box_office_collection_in_crores,"release_date":f'{movie.release_date.year}-{movie.release_date.month}-{movie.release_date.day}',"director_name":movie.director.name,"average_rating":average_rating,"total_number_of_ratings":count_of_rating})
-        all_movies.append(obj)
+        try:
+            average_rating = total_rating / count_of_rating
+        except ZeroDivisionError:
+            average_rating = 0
+        movie_obj.update({"movie_id": movie.movie_id, "name": movie.name, "cast": all_cast,
+                    "box_office_collection_in_crores": movie.box_office_collection_in_crores,
+                    "release_date": f'{movie.release_date.year}-{movie.release_date.month}-{movie.release_date.day}',
+                    "director_name": movie.director.name, "average_rating": average_rating,
+                    "total_number_of_ratings": count_of_rating})
+        all_movies.append(movie_obj)
 
     return all_movies
+
 
 """
         :return:
