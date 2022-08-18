@@ -148,7 +148,32 @@ def reset_ratings_for_movies_in_this_year():
     return movie_ratings
 
 def get_movies_by_given_movie_names(movie_names):
-        """
+
+    all_movies=[]
+    for name in movie_names:
+        movie_details={}
+        movie = Movie.objects.get(name=name)
+        obj ={}
+        rating = Rating.objects.get(movie_id=movie.movie_id)
+
+        crew = Cast.objects.filter(movie__movie_id=movie.movie_id)
+        all_cast = []
+        for cast in crew:
+            cast_obj={}
+            actor_obj={}
+            actor_obj.update({"name":cast.actor.name,"actor_id": cast.actor.actor_id,})
+            cast_obj.update({"actor": actor_obj, "role": cast.role, "is_debut_movie": cast.is_debut_movie})
+
+
+        total_rating = 1 * rating.rating_one_count + 2 * rating.rating_two_count + 3 * rating.rating_three_count + 4 * rating.rating_four_count + 5 * rating.rating_five_count
+        count_of_rating = rating.rating_one_count + rating.rating_two_count + rating.rating_three_count + rating.rating_four_count + rating.rating_five_count
+        average_rating = total_rating / count_of_rating
+        obj.update({"movie_id": movie.movie_id,"name":movie.name,"cast":cast_obj, "box_office_collection_in_crores":movie.box_office_collection_in_crores,"release_date":f'{movie.release_date.year}-{movie.release_date.month}-{movie.release_date.day}',"director_name":movie.director.name,"average_rating":average_rating,"total_number_of_ratings":count_of_rating})
+        all_movies.append(obj)
+
+    return all_movies
+
+"""
         :return:
         [{
             "movie_id": 1,
@@ -170,21 +195,3 @@ def get_movies_by_given_movie_names(movie_names):
             "total_number_of_ratings": 1000
         }]
         """
-    all_movies=[]
-    for name in movie_names:
-        movie_details={}
-        movie = Movie.objects.get(name=name)
-        obj ={}
-        rating = Rating.objects.get(movie_id=movie.movie_id)
-
-        crew = Cast.objects.filter(movie__movie_id=movie.movie_id)
-
-
-        total_rating = 1 * rating.rating_one_count + 2 * rating.rating_two_count + 3 * rating.rating_three_count + 4 * rating.rating_four_count + 5 * rating.rating_five_count
-        count_of_rating = rating.rating_one_count + rating.rating_two_count + rating.rating_three_count + rating.rating_four_count + rating.rating_five_count
-        average_rating = total_rating / count_of_rating
-        obj.update({"movie_id": movie.movie_id,"name":movie.name,"box_office_collection_in_crores":movie.box_office_collection_in_crores,"release_date":movie.release_date,"director_name":movie.director.name,"average_rating":average_rating,"total_number_of_ratings":count_of_rating})
-        all_movies.append(obj)
-
-    return all_movies
-
