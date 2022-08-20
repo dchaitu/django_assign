@@ -1,6 +1,6 @@
-from django.db.models import Q, Count,Avg
+from django.db.models import Q, Count, Avg
 
-from imdb.models import Actor, Rating, Movie, Cast
+from imdb.models import Actor, Movie, Cast
 
 
 def get_average_box_office_collections():
@@ -16,12 +16,14 @@ def get_movies_with_distinct_actors_count():
     """
     :return: a list of Movie model instances
     """
-    # Profile.objects.values('age').annotate(Count('age'))
-    movies = Movie.objects.values('actors').annotate(actors_count=Count('actors',distinct=True))
+
+    movies = Movie.objects.values('actors').annotate(movies_count=Count('actors', distinct=True))
     return movies
+
+
 # Need to check
 
-def get_male_and_female_actors_count_for_each_movie():
+def get_male_and_female_movies_count_for_each_movie():
     """
     :return: a list of Movie model instances
     """
@@ -31,51 +33,52 @@ def get_male_and_female_actors_count_for_each_movie():
                                                                                                        'female_count')
     return movies
 
+
 def get_roles_count_for_each_movie():
     """
     :return:
     ["Avengers, End Game", "The Iron Man, Part 3"]
     """
-    movies =  Movie.objects.values('name').annotate(roles_count = Count('actors__cast__role',distinct= True))
-    return  movies
+    movies = Movie.objects.values('name').annotate(roles_count=Count('actors__cast__role', distinct=True))
+    return movies
+
 
 def get_role_frequency():
-  """
+    """
   :return: {
     "role_1": 3,
     "role_2": 5
   }
   """
 
-  roles = Cast.objects.values('role').annotate(roles_count =Count('role'))
-  return roles
+    roles = Cast.objects.values('role').annotate(roles_count=Count('role'))
+    return roles
 
 
 def get_role_frequency_in_order():
-  """
+    """
   :return: [('role_2', 5), ('role_1', 3)]
 
   """
-  roles = Cast.objects.values('role').annotate(roles_count =Count('role')).order_by('-roles_count')
-  return roles
+    roles = Cast.objects.values('role').annotate(roles_count=Count('role')).order_by('-roles_count')
+    return roles
 
 
 def get_no_of_movies_and_distinct_roles_for_each_actor():
     """
     :return: a list of Movie model instances
     """
-    # Select
-    # Count(*), imdb_actor.name
-    # FROM
-    # imdb_cast, imdb_actor
-    # Where
-    # imdb_cast.actor_id = imdb_actor.actor_id
-    # Group
-    # By
-    # imdb_cast.actor_id
-    # actors = Actor.objects.values('actor_id').annotate(Count('movie__cast__role',distinct=True)).annotate(Count('movie__movie_id'))
-    actors = Cast.objects.values('actor__actor_id').annotate(Count('actor'))
-    return actors
+
+    # Movie.objects.annotate(movies_count=Count('actors')).values('movies_count').order_by('-movies_count')
+    role_count = Actor.objects.annotate(roles_count=Count('cast__role', distinct=True)).values('name',
+                                                                                               'roles_count').order_by(
+        '-roles_count')
+    movie_count = Actor.objects.annotate(count_of_movies=Count('movie', distinct=True)).values('name',
+                                                                                               'count_of_movies').order_by(
+        '-count_of_movies')
+    return [role_count, movie_count]
+
+
 # Check
 
 def get_movies_with_atleast_forty_actors():
@@ -83,8 +86,10 @@ def get_movies_with_atleast_forty_actors():
     :return: a list of Movie model instances
     """
     atleast_count = 40
-    movie_actors = Movie.objects.annotate(atleast_count = Count('movie__actors')).filter(atleast_count__gt = atleast_count)
+    movie_actors = Movie.objects.annotate(atleast_count=Count('cast__movie__actors')).filter(
+        atleast_count__gt=atleast_count)
     return movie_actors
+
 
 def get_average_no_of_actors_for_all_movies():
     """
@@ -96,5 +101,5 @@ def get_average_no_of_actors_for_all_movies():
     # return  average_no_of_actors
     count_actors = Movie.objects.aggregate(Count('actors'))
     count_movies = Movie.objects.aggregate(Count('movie_id'))
-    avg = count_actors/count_movies
+    avg = count_actors / count_movies
     return round(avg, 3)
