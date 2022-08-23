@@ -17,11 +17,10 @@ def get_movies_with_distinct_actors_count():
     :return: a list of Movie model instances
     """
 
-    movies = Movie.objects.values('actors').annotate(movies_count=Count('actors', distinct=True))
-    return movies
+    movies_with_actors = Movie.objects.values('actors__movie__name').annotate(actors_count=Count('actors', distinct=True))
+    return movies_with_actors
 
 
-# Need to check
 
 def get_male_and_female_movies_count_for_each_movie():
     """
@@ -29,7 +28,7 @@ def get_male_and_female_movies_count_for_each_movie():
     """
 
     movies = Movie.objects.annotate(male_count=Count('actors', filter=Q(actors__gender='M')),
-                                    female_count=Count('actors', filter=Q(actors__gender='F'))).values('male_count',
+                                    female_count=Count('actors', filter=Q(actors__gender='F'))).values('name','male_count',
                                                                                                        'female_count')
     return movies
 
@@ -39,7 +38,7 @@ def get_roles_count_for_each_movie():
     :return:
     ["Avengers, End Game", "The Iron Man, Part 3"]
     """
-    movies = Movie.objects.values('name').annotate(roles_count=Count('actors__cast__role', distinct=True))
+    movies = Movie.objects.annotate(roles_count=Count('actors__cast__role', distinct=True)).values('name','roles_count')
     return movies
 
 
@@ -96,9 +95,6 @@ def get_average_no_of_actors_for_all_movies():
     :return: 4.123
     """
 
-    # fieldname = 'actors'
-    # average_no_of_actors = Movie.objects.values(fieldname).annotate(the_count=Count('actors.all()'),the_avg = Avg(fieldname)).values('the_count','the_avg')
-    # return  average_no_of_actors
     count_actors = Movie.objects.aggregate(Count('actors'))
     count_movies = Movie.objects.aggregate(Count('movie_id'))
     avg = count_actors / count_movies

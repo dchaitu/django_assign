@@ -1,4 +1,4 @@
-from imdb.models import Actor, Rating
+from imdb.models import Rating
 
 
 # Task 10

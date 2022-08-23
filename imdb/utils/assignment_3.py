@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from imdb.models import Actor, Rating, Movie, Cast
+from imdb.models import Rating, Movie, Cast,Actor
 
 
 # Get the list of movies released in the months of May, June & July & between 2005 to 2010.
@@ -10,12 +10,10 @@ def get_movies_released_in_summer_in_given_years():
     May,June,July
     """
     movie_list = []
-    for i in range(2005, 2011):
-        start_date = f'{i}-05-01'
-        end_date = f'{i}-07-31'
-        movies = Movie.objects.filter(release_date__gte=start_date, release_date__lte=end_date)
-        if movies:
-            movie_list.append(movies)
+    movies = Movie.objects.filter(release_date__year__gte=2005, release_date__month__gte=5,
+                                  release_date__year__lte=2011, release_date__month__lte=7)
+    if movies:
+        movie_list.append(movies)
     return movie_list
 
 
@@ -28,7 +26,7 @@ def get_movie_names_with_actor_name_ending_with_smith():
     """
 
     movie_list = []
-    movies = Movie.objects.filter(actors__name__icontains="Smith")
+    movies = Movie.objects.filter(actors__name__endswith="Smith")
     for movie in movies:
         movie_list.append(movie.name)
 
@@ -40,14 +38,12 @@ def get_movie_names_with_ratings_in_given_range():
     :return:
     ["Avengers, End Game", "The Iron Man, Part 3"]
     """
-    ratings_list = []
     min_rating = Q(rating_five_count__gt=1000)
     max_rating = Q(rating_five_count__lte=3000)
     ratings = Rating.objects.filter(min_rating & max_rating)
-    for rating in ratings:
-        movie = Movie.objects.get(movie_id=rating.movie_id)
-        ratings_list.append(movie.name)
-    return ratings_list
+    movie = Movie.objects.filter(rating__in=ratings)
+
+    return [movie.name for movie in movie.all()]
 
 
 # Task 5
@@ -58,30 +54,22 @@ def get_movie_names_with_ratings_in_given_range():
     :return:
     ["Avengers, End Game", "The Iron Man, Part 3"]
     """
-    ratings_list = []
-
-    # release_year = Q(movie_id__release_date.year=)
     min_rating = Q(rating_five_count__gt=500)
     min_four_rating = Q(rating_four_count__gt=1000)
     min_three_rating = Q(rating_three_count__gt=2000)
     min_two_rating = Q(rating_two_count__gt=4000)
     min_one_rating = Q(rating_two_count__gt=8000)
     ratings = Rating.objects.filter(min_rating | min_four_rating | min_three_rating | min_two_rating | min_one_rating)
-    for rating in ratings:
-        movie = Movie.objects.get(movie_id=rating.movie_id)
-        ratings_list.append(movie.name)
-    return ratings_list
+    movie = Movie.objects.filter(rating__in=ratings)
+
+    return [movie.name for movie in movie.all()]
 
 
 # Task 6
 def get_movie_directors_in_given_year():
-    director_list = []
     year = 2000
     movies = Movie.objects.filter(release_date__year=year)
-    for movie in movies:
-        director_list.append(movie.director.name)
-
-    return director_list
+    return [movie.director.name for movie in movies.all()]
 
 
 def get_actor_names_debuted_in_21st_century():
@@ -89,21 +77,12 @@ def get_actor_names_debuted_in_21st_century():
     :return:
     ["VD"]
     """
-    actor_names = []
-    all_actors = []
     year = 2000
-    movies = Movie.objects.filter(release_date__year__gt=year)
-    for movie in movies:
-        for actor in movie.actors.all():
-            all_actors.append(actor)
-    for actor in all_actors:
-        cast_debuts = Cast.objects.filter(actor__actor_id=actor.actor_id)
-        casts = cast_debuts.filter(is_debut_movie=True)
-        for cast in casts:
-            if cast:
-                actor_names.append(cast.actor.name)
+    debut = Q(cast__is_debut_movie=True)
+    twenty_first_century = Q(movie__release_date__year__gt=year)
+    actors = Actor.objects.filter(debut&twenty_first_century)
 
-    return actor_names
+    return [actor.name for actor in actors]
 
 
 def get_director_names_containing_big_as_well_as_movie_in_may():
@@ -111,16 +90,13 @@ def get_director_names_containing_big_as_well_as_movie_in_may():
     :return:
     ["James Cameron"]
     """
-    director_list = []
     month = 5
     word = "big"
     movie_release = Q(release_date__month=month)
     movie_word = Q(name__contains=word)
     movies = Movie.objects.filter(movie_release | movie_word)
-    for movie in movies:
-        director_list.append(movie.director.name)
 
-    return director_list
+    return [movie.director.name for movie in movies]
 
 
 def reset_ratings_for_movies_in_this_year():
@@ -151,13 +127,17 @@ def reset_ratings_for_movies_in_this_year():
 
 def get_movies_by_given_movie_names(movie_names):
     all_movies = []
-    for name in movie_names:
-        movie = Movie.objects.get(name=name)
+    movies = Movie.objects.filter(name__in=movie_names)
+
+    for movie in movies:
+        # print(movie.rating_set.values())
+        # print(movie.cast_set.values())
+        #
         movie_obj = {}
         rating = Rating.objects.get(movie_id=movie.movie_id)
 
         crew = Cast.objects.filter(movie__movie_id=movie.movie_id)
-        all_cast=[]
+        all_cast = []
         for cast in crew:
             cast_obj = {}
             actor_obj = {}
@@ -171,10 +151,10 @@ def get_movies_by_given_movie_names(movie_names):
         except ZeroDivisionError:
             average_rating = 0
         movie_obj.update({"movie_id": movie.movie_id, "name": movie.name, "cast": all_cast,
-                    "box_office_collection_in_crores": movie.box_office_collection_in_crores,
-                    "release_date": f'{movie.release_date.year}-{movie.release_date.month}-{movie.release_date.day}',
-                    "director_name": movie.director.name, "average_rating": average_rating,
-                    "total_number_of_ratings": count_of_rating})
+                          "box_office_collection_in_crores": movie.box_office_collection_in_crores,
+                          "release_date": movie.release_date.strftime("%d-%m-%Y"),
+                          "director_name": movie.director.name, "average_rating": average_rating,
+                          "total_number_of_ratings": count_of_rating})
         all_movies.append(movie_obj)
 
     return all_movies
