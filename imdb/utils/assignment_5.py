@@ -113,18 +113,19 @@ def get_female_cast_details_from_movies_having_more_than_five_female_cast():
         count_of_rating = rating.rating_one_count + rating.rating_two_count + rating.rating_three_count + rating.rating_four_count + rating.rating_five_count
         try:
             average_rating = total_rating / count_of_rating
-        except ZeroDivisionError:
-            average_rating = 0
-        movie_obj.update({"movie_id": movie.movie_id, "name": movie.name, "cast": all_cast,
+
+            movie_obj.update({"movie_id": movie.movie_id, "name": movie.name, "cast": all_cast,
                           "box_office_collection_in_crores": movie.box_office_collection_in_crores,
                           "release_date": movie.release_date.strftime("%d-%m-%Y"),
                           "director_name": movie.director.name, "average_rating": average_rating,
                           "total_number_of_ratings": count_of_rating})
-        all_movies.append(movie_obj)
+            all_movies.append(movie_obj)
 
 
 
-    return all_movies
+            return all_movies
+        except ZeroDivisionError:
+            average_rating = 0
 # check
 
 def get_actor_movies_released_in_year_greater_than_or_equal_to_2000():
