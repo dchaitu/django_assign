@@ -1,4 +1,4 @@
-from imdb.models import Rating, Movie
+from imdb.models import Rating, Movie, Actor
 
 
 def delete_movie_rating(movie_obj):
@@ -16,20 +16,12 @@ def get_all_actor_objects_acted_in_given_movies(movie_objs):
     List of actor objects
     Sample Output: [<Actor: actor_1>, <Actor: actor_2>, ..]
     """
-    # m = Movie.objects.get(movie_id="movie_2")
-    # m1 = Movie.objects.get(movie_id="movie_1")
-    # m2 = Movie.objects.get(movie_id="movie_3")
-    # actors_list=[]
-    # movie_objs=[]
-    # movie_objs.append(m)
-    # movie_objs.append(m1)
-    # movie_objs.append(m2)
 
-    actors_list = []
-    for movie in movie_objs:
-        for actor in movie.actors.all():
-            if actor not in actors_list:
-                actors_list.append(actor)
-
+    # actors_list = []
+    # for movie in movie_objs:
+    #     for actor in movie.actors.all():
+    #         if actor not in actors_list:
+    #             actors_list.append(actor)
+    actors_list = list(Actor.objects.filter(movie__in=movie_objs))
     return actors_list
 

@@ -117,7 +117,7 @@ def get_female_cast_details_from_movies_having_more_than_five_female_cast():
             movie_obj.update({"movie_id": movie.movie_id, "name": movie.name, "cast": all_cast,
                           "box_office_collection_in_crores": movie.box_office_collection_in_crores,
                           "release_date": movie.release_date.strftime("%d-%m-%Y"),
-                          "director_name": movie.director.name, "average_rating": average_rating,
+                          "director_name": movie.director.name, "average_rating": round(average_rating, 2),
                           "total_number_of_ratings": count_of_rating})
             all_movies.append(movie_obj)
 
@@ -157,13 +157,14 @@ def get_actor_movies_released_in_year_greater_than_or_equal_to_2000():
     """
     year =2000
     movies = Movie.objects.filter(release_date__year__gt =year)
+    actors_of_2000 = []
     actors = Actor.objects.filter(movie__in=movies)
-    actors_of_2000=[]
+
     for actor in actors:
         actor_obj={}
         actor_obj.update({"name":actor.name,"actor_id":actor.actor_id})
-        actor_obj.update({"movies":list(actor.movie_set.all().values())})
-    actors_of_2000.append(actor_obj)
+        actor_obj.update({"movies":list(actor.movie_set.all())})
+        actors_of_2000.append(actor_obj)
     return actors_of_2000
 
 

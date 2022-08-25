@@ -22,13 +22,9 @@ def get_all_rating_objects_for_given_movies(movie_objs):
     rating_objs: [<Rating: rating_1>, <Rating: rating_2>, ..]
     """
     rating_objs = []
-    for movie in movie_objs:
-        try:
-            rating = Rating.objects.get(movie_id=movie.movie_id)
-        except:
-            rating = None
+    try:
 
-        rating_objs.append(rating)
-        rating_objs = [rating for rating in rating_objs if rating is not None]
-
-    return rating_objs
+        rating = Rating.objects.filter(movie__in=movie_objs)
+        return rating
+    except Rating.DoesNotExist:
+        print("Rating doesn't exist")

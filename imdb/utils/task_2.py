@@ -5,12 +5,17 @@ from imdb.models import Rating, Movie, Cast, Actor, Director
 def get_actor(actor_id):
     try:
         actor = Actor.objects.get(actor_id=actor_id)
-    except:
+
         name = input("Actor name = ")
+        if len(name)==0:
+            raise Actor.DoesNotExist
         actor = Actor.objects.create(actor_id=actor_id, name=name)
         actor.save()
+        return actor
+    except Actor.DoesNotExist:
+        print("Actor should have a name")
 
-    return actor
+
 
 
 def get_director(name):

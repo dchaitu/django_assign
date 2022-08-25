@@ -34,6 +34,9 @@ class Actor(models.Model):
     def __str__(self):
         return self.name
 
+    def get_actor_dict(self):
+        return {"actor_id":self.actor_id,"name":self.name,"gender":self.gender}
+
 
 '''
 An actor can act in more than one movie.
@@ -60,6 +63,8 @@ class Cast(models.Model):
     def __str__(self):
         return  self.role
 
+    def get_cast_dict(self):
+        return {"actor":self.actor.get_actor_dict(),"role":self.role,"is_debut_movie":self.is_debut_movie}
 
 class Movie(models.Model):
     name = models.CharField(max_length=100)
@@ -71,6 +76,9 @@ class Movie(models.Model):
 
     def __str__(self):
         return  self.name
+
+    def get_movie_dict(self):
+        return {"movie_id":self.movie_id,"name":self.name ,"release_date":self.release_date.strftime("%d-%m-%Y"),"director":self.director.name}
 
 
 
