@@ -60,7 +60,7 @@ class MovieAdmin(admin.ModelAdmin):
     def actors_count(self,obj):
         return f'{obj.actors.count()}'
 
-    list_display = ('name','actors_count','director_name')
+    list_display = ('movie_id', 'name','actors_count','director_name')
     director_name.short_description = 'Director'
 
     date_hierarchy = 'release_date'

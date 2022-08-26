@@ -2,20 +2,16 @@ from datetime import date
 from imdb.models import Rating, Movie, Cast, Actor, Director
 
 
-def get_actor(actor_id):
+def create_actor(actor_id):
+    name = input("Actor name = ")
+    if len(name) == 0:
+        raise Actor.DoesNotExist
     try:
-        actor = Actor.objects.get(actor_id=actor_id)
-
-        name = input("Actor name = ")
-        if len(name)==0:
-            raise Actor.DoesNotExist
         actor = Actor.objects.create(actor_id=actor_id, name=name)
         actor.save()
         return actor
     except Actor.DoesNotExist:
         print("Actor should have a name")
-
-
 
 
 def get_director(name):
@@ -62,5 +58,5 @@ def create_movie_rating(movie_id):
                           rating_four_count=rating_four_count, rating_five_count=rating_five_count)
 
 
-def populate_databases(actors_list, movies_list, directors_list, movie_rating_list):
-    pass
+# def populate_databases(actors_list, movies_list, directors_list, movie_rating_list):
+#     pass

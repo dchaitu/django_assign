@@ -21,7 +21,6 @@ def get_all_rating_objects_for_given_movies(movie_objs):
     :return:
     rating_objs: [<Rating: rating_1>, <Rating: rating_2>, ..]
     """
-    rating_objs = []
     try:
 
         rating = Rating.objects.filter(movie__in=movie_objs)
