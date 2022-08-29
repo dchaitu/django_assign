@@ -129,15 +129,18 @@ def get_movies_by_given_movie_names(movie_names):
     movie_rating_objs = Rating.objects.filter(movie__name__in=movie_names).select_related('movie')
 
     rating_for_movies={}
-
+    all_casts = []
     for cast in movie_cast_objs:
-        movie_obj = {}
-        all_casts=[]
+
+
         cast_obj = {}
         actor_obj = {}
         actor_obj.update({"name": cast.actor.name, "actor_id": cast.actor.actor_id, })
         cast_obj.update({"actor": actor_obj, "role": cast.role, "is_debut_movie": cast.is_debut_movie})
         all_casts.append(cast_obj)
+
+    for cast in movie_cast_objs:
+        movie_obj = {}
         movie_obj.update({"movie_id": cast.movie.movie_id, "name": cast.movie.name, "cast": all_casts,
                     "box_office_collection_in_crores": cast.movie.box_office_collection_in_crores,
                     "release_date": f'{cast.movie.release_date.year}-{cast.movie.release_date.month}-{cast.movie.release_date.day}',
